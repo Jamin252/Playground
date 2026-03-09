@@ -1,43 +1,61 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Your Inbox</h2>
-<section class="form-card">
-  <h3>Send a New Message</h3>
-  <form method="post">
-    <label>Send to
-      <select name="receiver_id" required>
-        <option value="">Choose a user</option>
-        {% for user in users %}
-          <option value="{{ user.id }}">{{ user.username }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Related item (optional)
-      <select name="item_id">
-        <option value="">Not related to my item</option>
-        {% for item in items %}
-          <option value="{{ item.id }}">{{ item.title }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Message
-      <textarea name="body" rows="4" required></textarea>
-    </label>
-    <button type="submit">Send</button>
-  </form>
-</section>
+<h2>Messages</h2>
 
-<section>
-  {% for msg in inbox %}
-    <article class="card">
-      <p><strong>From:</strong> {{ msg.sender.username }}</p>
-      {% if msg.item %}<p><strong>About item:</strong> {{ msg.item.title }}</p>{% endif %}
-      <p>{{ msg.body }}</p>
-      <small>{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
-    </article>
-  {% else %}
-    <p>No messages yet.</p>
-  {% endfor %}
-</section>
+<div class="chat-layout">
+  <aside class="chat-sidebar">
+    <h3>Chats</h3>
+    {% for user in conversation_users %}
+      <a class="chat-user {% if selected_user and selected_user.id == user.id %}active{% endif %}" href="{{ url_for('messages', user=user.id) }}">
+        {{ user.username }}
+      </a>
+    {% else %}
+      <p class="muted">No chats yet.</p>
+    {% endfor %}
+
+    <section class="form-card compact">
+      <h4>New message</h4>
+      <form method="post">
+        <label>Send to
+          <select name="receiver_id" required>
+            <option value="">Choose a user</option>
+            {% for user in users %}
+              <option value="{{ user.id }}" {% if selected_user_id == user.id %}selected{% endif %}>{{ user.username }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Message
+          <textarea name="body" rows="3" required placeholder="Type your message..."></textarea>
+        </label>
+        <button type="submit">Send</button>
+      </form>
+    </section>
+  </aside>
+
+  <section class="chat-thread">
+    {% if selected_user %}
+      <div class="chat-header">Conversation with <strong>{{ selected_user.username }}</strong></div>
+      <div class="chat-messages">
+        {% for msg in thread %}
+          <article class="bubble {% if msg.sender_id == current_user.id %}mine{% else %}theirs{% endif %}">
+            {% if msg.item %}<p class="bubble-item">Re: {{ msg.item.title }}</p>{% endif %}
+            <p>{{ msg.body }}</p>
+            <small>{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+          </article>
+        {% else %}
+          <p class="muted">No messages in this conversation yet.</p>
+        {% endfor %}
+      </div>
+
+      <form method="post" class="chat-compose">
+        <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+        <textarea name="body" rows="2" required placeholder="Write a message..."></textarea>
+        <button type="submit">Send</button>
+      </form>
+    {% else %}
+      <p class="muted">Pick a conversation or start a new message.</p>
+    {% endif %}
+  </section>
+</div>
 {% endblock %}

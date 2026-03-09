@@ -13,6 +13,7 @@ from flask import (
 )
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_, or_
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -223,9 +224,66 @@ def item_detail(item_id: int):
     return render_template("item_detail.html", item=item)
 
 
+@app.route("/items/<int:item_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_item(item_id: int):
+    item = Item.query.get_or_404(item_id)
+    if item.user_id != current_user.id:
+        flash("You can only edit your own listings.", "danger")
+        return redirect(url_for("item_detail", item_id=item.id))
+
+    categories = Category.query.order_by(Category.name).all()
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        category_id = request.form.get("category_id", type=int)
+        image = request.files.get("image")
+
+        if not title or not description or not category_id:
+            flash("Title, description and category are required.", "danger")
+            return redirect(url_for("edit_item", item_id=item.id))
+
+        item.title = title
+        item.description = description
+        item.category_id = category_id
+
+        if image and image.filename:
+            if not allowed_file(image.filename):
+                flash("Image must be png, jpg, jpeg, or gif.", "danger")
+                return redirect(url_for("edit_item", item_id=item.id))
+
+            timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
+            image_filename = f"{timestamp}_{secure_filename(image.filename)}"
+            image.save(UPLOAD_FOLDER / image_filename)
+            item.image_filename = image_filename
+
+        db.session.commit()
+        flash("Listing updated.", "success")
+        return redirect(url_for("item_detail", item_id=item.id))
+
+    return render_template("edit_item.html", item=item, categories=categories)
+
+
+@app.route("/items/<int:item_id>/delete", methods=["POST"])
+@login_required
+def delete_item(item_id: int):
+    item = Item.query.get_or_404(item_id)
+    if item.user_id != current_user.id:
+        flash("You can only delete your own listings.", "danger")
+        return redirect(url_for("item_detail", item_id=item.id))
+
+    db.session.delete(item)
+    db.session.commit()
+    flash("Listing removed.", "info")
+    return redirect(url_for("profile", user_id=current_user.id))
+
+
 @app.route("/messages", methods=["GET", "POST"])
 @login_required
 def messages():
+    selected_user_id = request.args.get("user", type=int)
+
     if request.method == "POST":
         receiver_id = request.form.get("receiver_id", type=int)
         item_id = request.form.get("item_id", type=int)
@@ -239,12 +297,52 @@ def messages():
         db.session.add(message)
         db.session.commit()
         flash("Message sent.", "success")
-        return redirect(url_for("messages"))
+        return redirect(url_for("messages", user=receiver_id))
 
-    inbox = Message.query.filter_by(receiver_id=current_user.id).order_by(Message.created_at.desc()).all()
+    if selected_user_id == current_user.id:
+        selected_user_id = None
+
+    conversation_users = (
+        User.query.join(
+            Message,
+            or_(
+                and_(Message.sender_id == current_user.id, Message.receiver_id == User.id),
+                and_(Message.receiver_id == current_user.id, Message.sender_id == User.id),
+            ),
+        )
+        .distinct()
+        .order_by(User.username)
+        .all()
+    )
+
     users = User.query.filter(User.id != current_user.id).order_by(User.username).all()
-    items = Item.query.filter_by(user_id=current_user.id).order_by(Item.created_at.desc()).all()
-    return render_template("messages.html", inbox=inbox, users=users, items=items)
+    if not selected_user_id and conversation_users:
+        selected_user_id = conversation_users[0].id
+
+    thread = []
+    selected_user = None
+    if selected_user_id:
+        selected_user = User.query.get(selected_user_id)
+        if selected_user and selected_user.id != current_user.id:
+            thread = (
+                Message.query.filter(
+                    or_(
+                        and_(Message.sender_id == current_user.id, Message.receiver_id == selected_user.id),
+                        and_(Message.sender_id == selected_user.id, Message.receiver_id == current_user.id),
+                    )
+                )
+                .order_by(Message.created_at.asc())
+                .all()
+            )
+
+    return render_template(
+        "messages.html",
+        users=users,
+        conversation_users=conversation_users,
+        thread=thread,
+        selected_user=selected_user,
+        selected_user_id=selected_user_id,
+    )
 
 
 @app.route("/profile/<int:user_id>")
@@ -252,6 +350,18 @@ def profile(user_id: int):
     seller = User.query.get_or_404(user_id)
     seller_items = Item.query.filter_by(user_id=seller.id).order_by(Item.created_at.desc()).all()
     return render_template("profile.html", seller=seller, seller_items=seller_items)
+
+
+@app.route("/profile/edit", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    if request.method == "POST":
+        current_user.bio = request.form.get("bio", "").strip()
+        db.session.commit()
+        flash("Bio updated.", "success")
+        return redirect(url_for("profile", user_id=current_user.id))
+
+    return render_template("edit_profile.html")
 
 
 @app.route("/uploads/<filename>")
