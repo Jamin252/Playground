@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Edit Listing</h2>
+<form method="post" enctype="multipart/form-data" class="form-card">
+  <label>Item title
+    <input type="text" name="title" value="{{ item.title }}" required>
+  </label>
+  <label>Description
+    <textarea name="description" rows="5" required>{{ item.description }}</textarea>
+  </label>
+  <label>Category
+    <select name="category_id" required>
+      {% for category in categories %}
+        <option value="{{ category.id }}" {% if category.id == item.category_id %}selected{% endif %}>{{ category.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Replace photo (optional)
+    <input type="file" name="image" accept="image/*">
+  </label>
+  <button type="submit">Save Changes</button>
+</form>
+{% endblock %}
