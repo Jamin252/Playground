@@ -9,21 +9,12 @@
   <p>{{ item.description }}</p>
   <p><strong>Category:</strong> {{ item.category.name }}</p>
   <p><strong>Seller:</strong> <a href="{{ url_for('profile', user_id=item.seller.id) }}">{{ item.seller.username }}</a></p>
-
-  {% if current_user.is_authenticated and current_user.id == item.seller.id %}
-  <div class="actions-row">
-    <a class="button-link" href="{{ url_for('edit_item', item_id=item.id) }}">Edit listing</a>
-    <form method="post" action="{{ url_for('delete_item', item_id=item.id) }}" onsubmit="return confirm('Delete this listing?');">
-      <button type="submit" class="danger">Delete listing</button>
-    </form>
-  </div>
-  {% endif %}
 </article>
 
 {% if current_user.is_authenticated and current_user.id != item.seller.id %}
 <section class="form-card">
   <h3>Message this seller</h3>
-  <form method="post" action="{{ url_for('conversation', user_id=item.seller.id) }}">
+  <form method="post" action="{{ url_for('messages') }}">
     <input type="hidden" name="receiver_id" value="{{ item.seller.id }}">
     <input type="hidden" name="item_id" value="{{ item.id }}">
     <textarea name="body" rows="4" required placeholder="Hi, is this still available?"></textarea>
