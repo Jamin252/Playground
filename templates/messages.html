@@ -1,36 +1,43 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="chat-layout">
-  <aside class="chat-list card">
-    <h3>Chats</h3>
-    {% for user in contacts %}
-      <a class="chat-user {% if user.id == contact.id %}active{% endif %}" href="{{ url_for('conversation', user_id=user.id) }}">{{ user.username }}</a>
-    {% else %}
-      <p>No users available yet.</p>
-    {% endfor %}
-  </aside>
+<h2>Your Inbox</h2>
+<section class="form-card">
+  <h3>Send a New Message</h3>
+  <form method="post">
+    <label>Send to
+      <select name="receiver_id" required>
+        <option value="">Choose a user</option>
+        {% for user in users %}
+          <option value="{{ user.id }}">{{ user.username }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Related item (optional)
+      <select name="item_id">
+        <option value="">Not related to my item</option>
+        {% for item in items %}
+          <option value="{{ item.id }}">{{ item.title }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Message
+      <textarea name="body" rows="4" required></textarea>
+    </label>
+    <button type="submit">Send</button>
+  </form>
+</section>
 
-  <section class="chat-window card">
-    <h3>Chat with {{ contact.username }}</h3>
-    <div class="chat-messages">
-      {% for msg in messages %}
-        <div class="bubble {% if msg.sender_id == current_user.id %}mine{% else %}theirs{% endif %}">
-          {% if msg.item %}<small>About: {{ msg.item.title }}</small>{% endif %}
-          <p>{{ msg.body }}</p>
-          <span>{{ msg.created_at.strftime('%d %b %H:%M') }}</span>
-        </div>
-      {% else %}
-        <p class="no-chat">No messages yet. Say hello 👋</p>
-      {% endfor %}
-    </div>
-
-    <form method="post" class="chat-input">
-      <input type="hidden" name="receiver_id" value="{{ contact.id }}">
-      <input type="hidden" name="item_id" value="{{ selected_item_id or '' }}">
-      <textarea name="body" rows="2" required placeholder="Type your message..."></textarea>
-      <button type="submit">Send</button>
-    </form>
-  </section>
+<section>
+  {% for msg in inbox %}
+    <article class="card">
+      <p><strong>From:</strong> {{ msg.sender.username }}</p>
+      {% if msg.item %}<p><strong>About item:</strong> {{ msg.item.title }}</p>{% endif %}
+      <p>{{ msg.body }}</p>
+      <small>{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+    </article>
+  {% else %}
+    <p>No messages yet.</p>
+  {% endfor %}
 </section>
 {% endblock %}

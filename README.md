@@ -7,10 +7,8 @@ TradeBoard is a beginner-friendly Flask web app for item trading (no payments), 
 - Item listings with optional photos
 - Categories for items
 - Search and category filter
-- WhatsApp-like messaging interface between users
+- Messaging system between users
 - Seller profile pages
-- Edit/delete your own listings
-- Edit your own bio
 
 ## Tech stack
 - Flask (backend + routing)
@@ -45,6 +43,6 @@ python app.py
 ## Project structure
 - `app.py` - Models, routes, and app configuration.
 - `templates/` - HTML pages.
-- `static/style.css` - eBay-like styling + chat layout styles.
+- `static/style.css` - Basic styling.
 - `static/uploads/` - Uploaded item photos.
 - `DOCUMENTATION.md` - Detailed function-by-function explanation.

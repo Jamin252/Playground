@@ -1,47 +1,23 @@
-:root {
-  --ebay-blue: #3665f3;
-  --ebay-yellow: #f5af02;
-  --ebay-bg: #f7f7f7;
-  --ebay-border: #d9d9d9;
-}
-
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  max-width: 1200px;
+  font-family: Arial, sans-serif;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0 1rem 2rem;
-  background: var(--ebay-bg);
-  color: #111;
+  background: #f6f8fb;
 }
 
-.topbar {
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 0;
-  border-bottom: 3px solid var(--ebay-blue);
-  margin-bottom: 1rem;
+  margin: 1rem 0;
 }
 
-.topbar h1 a {
-  color: var(--ebay-blue);
-  text-decoration: none;
-}
-
-nav a {
-  margin-left: 0.6rem;
-  text-decoration: none;
-  color: #222;
-  font-weight: 600;
-}
-
-nav a:hover {
-  color: var(--ebay-blue);
-}
+header a { margin-right: 0.8rem; }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
 }
 
@@ -49,15 +25,15 @@ nav a:hover {
 .form-card,
 .detail {
   background: white;
-  border: 1px solid var(--ebay-border);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   margin-bottom: 1rem;
 }
 
 img {
   max-width: 100%;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .detail-image {
@@ -75,33 +51,9 @@ select,
 textarea,
 button {
   width: 100%;
-  padding: 0.65rem;
+  padding: 0.55rem;
   margin-top: 0.25rem;
   box-sizing: border-box;
-  border: 1px solid var(--ebay-border);
-  border-radius: 8px;
-}
-
-button,
-.button-link {
-  background: var(--ebay-blue);
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: inline-block;
-  text-decoration: none;
-  text-align: center;
-  padding: 0.55rem 1rem;
-  border-radius: 999px;
-}
-
-button:hover,
-.button-link:hover {
-  opacity: 0.9;
-}
-
-button.danger {
-  background: #c9302c;
 }
 
 .search-bar {
@@ -119,85 +71,3 @@ button.danger {
 .flash-success { background: #d7f6de; }
 .flash-danger { background: #ffd7d7; }
 .flash-info { background: #dcecff; }
-
-.actions-row {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: 0.8rem;
-}
-
-.chat-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 1rem;
-}
-
-.chat-list {
-  min-height: 70vh;
-}
-
-.chat-user {
-  display: block;
-  padding: 0.6rem;
-  border-radius: 8px;
-  color: #111;
-  text-decoration: none;
-  margin-bottom: 0.35rem;
-}
-
-.chat-user.active,
-.chat-user:hover {
-  background: #e8efff;
-}
-
-.chat-window {
-  display: flex;
-  flex-direction: column;
-  min-height: 70vh;
-}
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin: 0.8rem 0;
-}
-
-.bubble {
-  max-width: 70%;
-  padding: 0.6rem 0.8rem;
-  border-radius: 14px;
-}
-
-.bubble.mine {
-  margin-left: auto;
-  background: var(--ebay-blue);
-  color: #fff;
-}
-
-.bubble.theirs {
-  margin-right: auto;
-  background: #ececec;
-}
-
-.bubble span {
-  display: block;
-  font-size: 0.75rem;
-  opacity: 0.8;
-}
-
-.chat-input {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.6rem;
-}
-
-.chat-input textarea {
-  margin-top: 0;
-}
-
-.no-chat {
-  color: #666;
-}
