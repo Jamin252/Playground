@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<article class="detail">
+  <h2>{{ item.title }}</h2>
+  {% if item.image_filename %}
+    <img src="{{ url_for('uploaded_file', filename=item.image_filename) }}" alt="{{ item.title }}" class="detail-image">
+  {% endif %}
+  <p>{{ item.description }}</p>
+  <p><strong>Category:</strong> {{ item.category.name }}</p>
+  <p><strong>Seller:</strong> <a href="{{ url_for('profile', user_id=item.seller.id) }}">{{ item.seller.username }}</a></p>
+</article>
+
+{% if current_user.is_authenticated and current_user.id != item.seller.id %}
+<section class="form-card">
+  <h3>Message this seller</h3>
+  <form method="post" action="{{ url_for('messages') }}">
+    <input type="hidden" name="receiver_id" value="{{ item.seller.id }}">
+    <input type="hidden" name="item_id" value="{{ item.id }}">
+    <textarea name="body" rows="4" required placeholder="Hi, is this still available?"></textarea>
+    <button type="submit">Send Message</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

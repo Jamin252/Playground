@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Your Inbox</h2>
+<section class="form-card">
+  <h3>Send a New Message</h3>
+  <form method="post">
+    <label>Send to
+      <select name="receiver_id" required>
+        <option value="">Choose a user</option>
+        {% for user in users %}
+          <option value="{{ user.id }}">{{ user.username }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Related item (optional)
+      <select name="item_id">
+        <option value="">Not related to my item</option>
+        {% for item in items %}
+          <option value="{{ item.id }}">{{ item.title }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Message
+      <textarea name="body" rows="4" required></textarea>
+    </label>
+    <button type="submit">Send</button>
+  </form>
+</section>
+
+<section>
+  {% for msg in inbox %}
+    <article class="card">
+      <p><strong>From:</strong> {{ msg.sender.username }}</p>
+      {% if msg.item %}<p><strong>About item:</strong> {{ msg.item.title }}</p>{% endif %}
+      <p>{{ msg.body }}</p>
+      <small>{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+    </article>
+  {% else %}
+    <p>No messages yet.</p>
+  {% endfor %}
+</section>
+{% endblock %}
