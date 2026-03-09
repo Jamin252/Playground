@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Create Listing</h2>
+<form method="post" enctype="multipart/form-data" class="form-card">
+  <label>Item title
+    <input type="text" name="title" required>
+  </label>
+  <label>Description
+    <textarea name="description" rows="5" required></textarea>
+  </label>
+  <label>Category
+    <select name="category_id" required>
+      <option value="">Select a category</option>
+      {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Photo (optional)
+    <input type="file" name="image" accept="image/*">
+  </label>
+  <button type="submit">Publish Listing</button>
+</form>
+{% endblock %}
