@@ -9,6 +9,7 @@
   <p>{{ item.description }}</p>
   <p><strong>Category:</strong> {{ item.category.name }}</p>
   <p><strong>Seller:</strong> <a href="{{ url_for('profile', user_id=item.seller.id) }}">{{ item.seller.username }}</a></p>
+  <p><strong>Status:</strong> {{ item.status.replace('_', ' ')|title }}</p>
 
   {% if current_user.is_authenticated and current_user.id == item.seller.id %}
     <div class="owner-actions">
@@ -17,17 +18,57 @@
         <button type="submit" class="danger">Remove listing</button>
       </form>
     </div>
+    {% if item.status == 'open' %}
+      <section class="form-card">
+        <h3>Close listing</h3>
+        <form method="post" action="{{ url_for('update_item_status', item_id=item.id) }}">
+          <label>Status
+            <select name="status" required>
+              <option value="put_down">Put down</option>
+              <option value="sold">Sold</option>
+            </select>
+          </label>
+          <label>Buyer (required if sold)
+            <select name="sold_to_user_id">
+              <option value="">Choose buyer</option>
+              {% for deal in item.deals %}
+                <option value="{{ deal.buyer.id }}">{{ deal.buyer.username }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <button type="submit">Update status</button>
+        </form>
+      </section>
+    {% endif %}
   {% endif %}
 </article>
 
-{% if current_user.is_authenticated and current_user.id != item.seller.id %}
+{% if current_user.is_authenticated and current_user.id != item.seller.id and item.status == 'open' %}
 <section class="form-card">
   <h3>Message this seller</h3>
   <form method="post" action="{{ url_for('messages') }}">
+    <input type="hidden" name="action" value="message">
     <input type="hidden" name="receiver_id" value="{{ item.seller.id }}">
     <input type="hidden" name="item_id" value="{{ item.id }}">
     <textarea name="body" rows="4" required placeholder="Hi, is this still available?"></textarea>
     <button type="submit">Send Message</button>
+  </form>
+</section>
+{% endif %}
+
+{% if current_user.is_authenticated and item.status == 'sold' and item.sold_to_user_id and current_user.id in [item.user_id, item.sold_to_user_id] %}
+<section class="form-card">
+  <h3>Leave a review</h3>
+  <form method="post" action="{{ url_for('submit_review', item_id=item.id) }}">
+    <label>Rating
+      <select name="rating" required>
+        <option value="">Choose a rating</option>
+        {% for r in range(1, 6) %}
+          <option value="{{ r }}">{{ r }} star{% if r > 1 %}s{% endif %}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Submit review</button>
   </form>
 </section>
 {% endif %}
