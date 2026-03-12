@@ -175,7 +175,7 @@ def index():
     category_id = request.args.get("category", type=int)
     sort = request.args.get("sort", "date_desc")
 
-    query = Item.query
+    query = Item.query.filter(Item.status == "open")
 
     if search:
         query = query.filter(Item.title.ilike(f"%{search}%"))

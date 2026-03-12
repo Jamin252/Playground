@@ -10,7 +10,7 @@
       <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
     {% endfor %}
   </select>
-  <select name="sort">
+  <select name="sort" onchange="this.form.submit()">
     <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest first</option>
     <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest first</option>
   </select>
