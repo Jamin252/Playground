@@ -152,6 +152,7 @@ def run_schema_migrations() -> None:
         Review.__table__.create(db.engine)
 
     db.session.execute(text("UPDATE item SET status='open' WHERE status IS NULL OR status=''"))
+    db.session.execute(text("UPDATE item SET status='closed_down' WHERE status='put_down'"))
     db.session.commit()
 
 
@@ -174,14 +175,23 @@ def index():
     search = request.args.get("q", "").strip()
     category_id = request.args.get("category", type=int)
     sort = request.args.get("sort", "date_desc")
+    show_closed = request.args.get("show_closed") == "1"
+    show_sold = request.args.get("show_sold") == "1"
 
-    query = Item.query.filter(Item.status == "open")
+    query = Item.query
 
     if search:
         query = query.filter(Item.title.ilike(f"%{search}%"))
 
     if category_id:
         query = query.filter(Item.category_id == category_id)
+
+    allowed_statuses = ["open"]
+    if show_closed:
+        allowed_statuses.append("closed_down")
+    if show_sold:
+        allowed_statuses.append("sold")
+    query = query.filter(Item.status.in_(allowed_statuses))
 
     if sort == "date_asc":
         query = query.order_by(Item.created_at.asc())
@@ -198,6 +208,8 @@ def index():
         search=search,
         category_id=category_id,
         sort=sort,
+        show_closed=show_closed,
+        show_sold=show_sold,
     )
 
 
@@ -318,7 +330,7 @@ def update_item_status(item_id: int):
         return redirect(url_for("item_detail", item_id=item.id))
 
     status = request.form.get("status")
-    if status not in {"put_down", "sold"}:
+    if status not in {"closed_down", "sold"}:
         flash("Invalid status.", "danger")
         return redirect(url_for("item_detail", item_id=item.id))
 
@@ -389,12 +401,13 @@ def edit_item(item_id: int):
 def delete_item(item_id: int):
     item = Item.query.get_or_404(item_id)
     if item.user_id != current_user.id:
-        flash("You can only delete your own listings.", "danger")
+        flash("You can only close your own listings.", "danger")
         return redirect(url_for("item_detail", item_id=item.id))
 
-    db.session.delete(item)
+    item.status = "closed_down"
+    item.closed_at = datetime.utcnow()
     db.session.commit()
-    flash("Listing removed.", "info")
+    flash("Listing marked as closed down.", "info")
     return redirect(url_for("profile", user_id=current_user.id))
 
 

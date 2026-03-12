@@ -10,10 +10,12 @@
       <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
     {% endfor %}
   </select>
-  <select name="sort" onchange="this.form.submit()">
+  <select name="sort">
     <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest first</option>
     <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest first</option>
   </select>
+  <label class="inline-toggle"><input type="checkbox" name="show_closed" value="1" {% if show_closed %}checked{% endif %}> Show closed down</label>
+  <label class="inline-toggle"><input type="checkbox" name="show_sold" value="1" {% if show_sold %}checked{% endif %}> Show sold</label>
   <button type="submit">Search</button>
 </form>
 
