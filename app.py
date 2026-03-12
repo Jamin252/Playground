@@ -251,7 +251,12 @@ def login():
         username_or_email = request.form.get("username_or_email", "").strip().lower()
         password = request.form.get("password", "")
 
-        user = User.query.filter((User.username == username_or_email) | (User.email == username_or_email)).first()
+        user = User.query.filter(
+            or_(
+                User.username == username_or_email,
+                User.email == username_or_email
+            )
+        ).first()
 
         if user and user.check_password(password):
             login_user(user)
@@ -260,6 +265,8 @@ def login():
 
         flash("Invalid credentials.", "danger")
 
+    
+    return render_template("login.html")
 
 @app.route("/logout")
 @login_required
