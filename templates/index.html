@@ -4,7 +4,7 @@
 <h2>Browse Items</h2>
 <form method="get" class="search-bar">
   <input type="text" name="q" placeholder="Search by title" value="{{ search }}">
-  <select name="category">
+  <select name="category" onchange="this.form.submit()">
     <option value="">All categories</option>
     {% for category in categories %}
       <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
@@ -14,8 +14,8 @@
     <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest first</option>
     <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest first</option>
   </select>
-  <label class="inline-toggle"><input type="checkbox" name="show_closed" value="1" {% if show_closed %}checked{% endif %}> Show closed down</label>
-  <label class="inline-toggle"><input type="checkbox" name="show_sold" value="1" {% if show_sold %}checked{% endif %}> Show sold</label>
+  <label class="inline-toggle"><input type="checkbox" name="show_closed" value="1" {% if show_closed %}checked{% endif %} onchange="this.form.submit()"> Show closed down</label>
+  <label class="inline-toggle"><input type="checkbox" name="show_sold" value="1" {% if show_sold %}checked{% endif %} onchange="this.form.submit()"> Show sold</label>
   <button type="submit">Search</button>
 </form>
 
