@@ -13,7 +13,7 @@ from flask import (
 )
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import and_, inspect, or_, text
+from sqlalchemy import and_, func, inspect, or_, text
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -421,8 +421,14 @@ def messages():
 
         if action == "message":
             receiver_id = request.form.get("receiver_id", type=int)
+            receiver_username = request.form.get("receiver_username", "").strip()
             item_id = request.form.get("item_id", type=int)
             body = request.form.get("body", "").strip()
+
+            if not receiver_id and receiver_username:
+                matched_user = User.query.filter(func.lower(User.username) == receiver_username.lower()).first()
+                if matched_user:
+                    receiver_id = matched_user.id
 
             if not receiver_id or not body:
                 flash("Receiver and message body are required.", "danger")

@@ -16,15 +16,24 @@
 
     <section class="form-card compact">
       <h4>New message</h4>
-      <form method="post">
+      <form method="post" id="new-message-form">
         <input type="hidden" name="action" value="message">
+        <input type="hidden" name="receiver_id" id="receiver-id-input">
         <label>Send to
-          <select name="receiver_id" required>
-            <option value="">Choose a user</option>
+          <input
+            type="text"
+            name="receiver_username"
+            id="receiver-username-input"
+            list="user-suggestions"
+            placeholder="Type a username"
+            autocomplete="off"
+            required
+          >
+          <datalist id="user-suggestions">
             {% for user in users %}
-              <option value="{{ user.id }}" {% if selected_user_id == user.id %}selected{% endif %}>{{ user.username }}</option>
+              <option value="{{ user.username }}"></option>
             {% endfor %}
-          </select>
+          </datalist>
         </label>
         <label>Message
           <textarea name="body" rows="3" required placeholder="Type your message..."></textarea>
@@ -101,4 +110,32 @@
     {% endif %}
   </section>
 </div>
+<script>
+  (function () {
+    const usersByUsername = {
+      {% for user in users %}
+        {{ user.username|lower|tojson }}: {{ user.id }},
+      {% endfor %}
+    };
+
+    const form = document.getElementById("new-message-form");
+    if (!form) return;
+
+    const usernameInput = document.getElementById("receiver-username-input");
+    const receiverIdInput = document.getElementById("receiver-id-input");
+
+    function syncReceiverId() {
+      const key = (usernameInput.value || "").trim().toLowerCase();
+      receiverIdInput.value = usersByUsername[key] || "";
+    }
+
+    usernameInput.addEventListener("input", syncReceiverId);
+    form.addEventListener("submit", syncReceiverId);
+
+    {% if selected_user %}
+      usernameInput.value = {{ selected_user.username|tojson }};
+      syncReceiverId();
+    {% endif %}
+  })();
+</script>
 {% endblock %}
