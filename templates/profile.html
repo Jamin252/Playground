@@ -6,9 +6,23 @@
   <p><strong>Email:</strong> {{ seller.email }}</p>
   <p><strong>Bio:</strong> {{ seller.bio or 'No bio added yet.' }}</p>
   <p><strong>Member since:</strong> {{ seller.created_at.strftime('%Y-%m-%d') }}</p>
+  <p><strong>Average rating:</strong> {{ average_rating if average_rating is not none else 'No ratings yet' }}</p>
   {% if current_user.is_authenticated and current_user.id == seller.id %}
     <a class="button-like" href="{{ url_for('edit_profile') }}">Edit bio</a>
   {% endif %}
+</section>
+
+<section class="detail">
+  <h3>Recent Reviews</h3>
+  {% for review in reviews %}
+    <p>
+      {{ '⭐' * review.rating }} ({{ review.rating }}/5)
+      for <a href="{{ url_for('item_detail', item_id=review.item.id) }}">{{ review.item.title }}</a>
+      on {{ review.created_at.strftime('%Y-%m-%d') }}
+    </p>
+  {% else %}
+    <p>No reviews yet.</p>
+  {% endfor %}
 </section>
 
 <h3>Listings by {{ seller.username }}</h3>
@@ -17,11 +31,12 @@
     <article class="card">
       <h4><a href="{{ url_for('item_detail', item_id=item.id) }}">{{ item.title }}</a></h4>
       <p>{{ item.description[:100] }}{% if item.description|length > 100 %}...{% endif %}</p>
+      <p><strong>Status:</strong> {{ item.status.replace('_', ' ')|title }}</p>
       {% if current_user.is_authenticated and current_user.id == seller.id %}
         <div class="inline-actions">
           <a class="button-like" href="{{ url_for('edit_item', item_id=item.id) }}">Edit</a>
-          <form method="post" action="{{ url_for('delete_item', item_id=item.id) }}" onsubmit="return confirm('Delete this listing?');">
-            <button type="submit" class="danger">Remove</button>
+          <form method="post" action="{{ url_for('delete_item', item_id=item.id) }}" onsubmit="return confirm('Close this listing as closed down?');">
+            <button type="submit" class="danger">Close</button>
           </form>
         </div>
       {% endif %}
