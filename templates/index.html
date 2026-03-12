@@ -10,6 +10,12 @@
       <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
     {% endfor %}
   </select>
+  <select name="sort">
+    <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest first</option>
+    <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest first</option>
+  </select>
+  <label class="inline-toggle"><input type="checkbox" name="show_closed" value="1" {% if show_closed %}checked{% endif %}> Show closed down</label>
+  <label class="inline-toggle"><input type="checkbox" name="show_sold" value="1" {% if show_sold %}checked{% endif %}> Show sold</label>
   <button type="submit">Search</button>
 </form>
 
@@ -23,6 +29,8 @@
       <p>{{ item.description[:120] }}{% if item.description|length > 120 %}...{% endif %}</p>
       <p><strong>Category:</strong> {{ item.category.name }}</p>
       <p><strong>Seller:</strong> <a href="{{ url_for('profile', user_id=item.seller.id) }}">{{ item.seller.username }}</a></p>
+      <p><strong>Status:</strong> {{ item.status.replace('_', ' ')|title }}</p>
+      <p><small>Listed: {{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</small></p>
     </article>
   {% else %}
     <p>No items found yet.</p>

@@ -17,6 +17,7 @@
     <section class="form-card compact">
       <h4>New message</h4>
       <form method="post">
+        <input type="hidden" name="action" value="message">
         <label>Send to
           <select name="receiver_id" required>
             <option value="">Choose a user</option>
@@ -36,6 +37,47 @@
   <section class="chat-thread">
     {% if selected_user %}
       <div class="chat-header">Conversation with <strong>{{ selected_user.username }}</strong></div>
+
+      <section class="form-card compact">
+        <h4>Suggest meet-up location</h4>
+        <form method="post">
+          <input type="hidden" name="action" value="suggest_location">
+          <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+          <label>Item
+            <select name="item_id" required>
+              <option value="">Choose item from your chat history</option>
+              {% for msg in thread if msg.item %}
+                <option value="{{ msg.item.id }}">{{ msg.item.title }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Location
+            <input name="location_suggestion" placeholder="e.g. Main street coffee shop" required>
+          </label>
+          <button type="submit">Send suggestion</button>
+        </form>
+      </section>
+
+      {% for deal in deals %}
+        <article class="deal-card">
+          <p><strong>Item:</strong> {{ deal.item.title }}</p>
+          <p><strong>Suggested location:</strong> {{ deal.location_suggestion or 'No suggestion yet' }}</p>
+          <p>
+            <strong>Agreement:</strong>
+            Buyer {{ '✅' if deal.buyer_agreed else '❌' }} |
+            Seller {{ '✅' if deal.seller_agreed else '❌' }}
+          </p>
+          {% if deal.location_suggestion and not (deal.buyer_agreed and deal.seller_agreed) %}
+            <form method="post">
+              <input type="hidden" name="action" value="agree_location">
+              <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+              <input type="hidden" name="deal_id" value="{{ deal.id }}">
+              <button type="submit">I agree</button>
+            </form>
+          {% endif %}
+        </article>
+      {% endfor %}
+
       <div class="chat-messages">
         {% for msg in thread %}
           <article class="bubble {% if msg.sender_id == current_user.id %}mine{% else %}theirs{% endif %}">
@@ -49,6 +91,7 @@
       </div>
 
       <form method="post" class="chat-compose">
+        <input type="hidden" name="action" value="message">
         <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
         <textarea name="body" rows="2" required placeholder="Write a message..."></textarea>
         <button type="submit">Send</button>

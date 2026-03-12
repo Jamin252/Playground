@@ -86,7 +86,7 @@ button.danger { background: #c62828; border-color: #c62828; }
 
 .search-bar {
   display: grid;
-  grid-template-columns: 2fr 1fr auto;
+  grid-template-columns: 2fr 1fr 1fr auto auto auto;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
@@ -170,4 +170,25 @@ button.danger { background: #c62828; border-color: #c62828; }
 
 @media (max-width: 860px) {
   .chat-layout { grid-template-columns: 1fr; }
+}
+
+.deal-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem;
+  margin-bottom: 0.6rem;
+  background: #fafbfd;
+}
+
+.inline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.inline-toggle input {
+  width: auto;
+  margin: 0;
 }
